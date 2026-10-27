@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="تیپاکس">
+<title>تیپاکس پرو | مدیریت آدرس، روز و گزارش مرسولات</title>
+<link rel="manifest" id="manifestLink">
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b16; --card:#111a33; --line:#232e55;
+  --txt:#eef2ff; --mut:#8b93b8;
+  --grad:linear-gradient(135deg,#6a5cff,#00d4ff);
+  --ok:#22c55e; --warn:#f59e0b; --bad:#f43f5e;
+  --rad:18px; --navh:64px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:Vazirmatn,Vazir,'Segoe UI',Tahoma,sans-serif;
+  background:radial-gradient(1200px 600px at 80% -10%,#1a2150 0%,transparent 60%),
+             radial-gradient(900px 500px at -10% 20%,#0e2a4a 0%,transparent 55%),var(--bg);
+  color:var(--txt);min-height:100dvh;
+  padding-bottom:calc(var(--navh) + env(safe-area-inset-bottom) + 14px);
+  overflow-x:hidden;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+}
+input,textarea{user-select:text;-webkit-user-select:text}
+button,.tbtn,.ibtn,.navbtn,.big,.ghost,.btn{touch-action:manipulation}
+::selection{background:#6a5cff66}
+input,textarea,button{font-family:inherit}
+input,textarea{background:#0b1126;border:1.5px solid var(--line);border-radius:14px;color:var(--txt);padding:12px 14px;font-size:15px;width:100%;outline:none;transition:border-color .2s, box-shadow .2s}
+input:focus,textarea:focus{border-color:var(--g1,#6a5cff);box-shadow:0 0 0 3px #6a5cff33}
+input::placeholder,textarea::placeholder{color:#5a6288}
+input.err{border-color:var(--bad)!important;animation:shake .4s}
+@keyframes shake{25%{transform:translateX(6px)}50%{transform:translateX(-6px)}75%{transform:translateX(4px)}}
+
+/* ===== HEADER ===== */
+.topbar{position:relative;overflow:hidden;padding:18px 16px 12px;background:linear-gradient(160deg,#111838,#0a0f22);border-bottom:1px solid #1d274e}
+.blob{position:absolute;border-radius:50%;filter:blur(42px);opacity:.45;pointer-events:none}
+.b1{width:190px;height:190px;background:#6a5cff;top:-90px;right:-40px;animation:float1 9s ease-in-out infinite}
+.b2{width:160px;height:160px;background:#00d4ff;bottom:-90px;left:-30px;animation:float2 11s ease-in-out infinite}
+@keyframes float1{50%{transform:translate(-26px,16px) scale(1.12)}}
+@keyframes float2{50%{transform:translate(24px,-14px) scale(.9)}}
+.toprow{position:relative;display:flex;align-items:center;gap:10px;perspective:600px}
+.brand{flex:1;transform:rotateX(8deg);animation:brandIn .8s cubic-bezier(.2,.9,.3,1.2) both}
+@keyframes brandIn{from{opacity:0;transform:rotateX(45deg) translateY(-18px)}}
+.brand h1{font-size:1.25rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 10px 30px #6a5cff44}
+.brand p{font-size:.72rem;color:var(--mut)}
+.btn-install{border:1.5px solid #00d4ff66;background:#00d4ff14;color:#7de9ff;border-radius:14px;padding:10px 14px;font-size:.8rem;font-weight:800;cursor:pointer;transition:transform .15s, box-shadow .2s}
+.btn-install:active{transform:translateY(2px) scale(.97)}
+.btn-install.ready{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 6px 22px #6a5cff66;animation:pulse 2s infinite}
+@keyframes pulse{50%{box-shadow:0 6px 30px #00d4ff99}}
+.ticker{position:relative;margin-top:12px;overflow:hidden;border-radius:12px;background:linear-gradient(90deg,#6a5cff26,#00d4ff26);border:1px solid #6a5cff33}
+.ticker>div{display:inline-block;white-space:nowrap;padding:7px 0;font-size:.74rem;color:#b9c2ff;animation:tick 16s linear infinite}
+@keyframes tick{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+/* ===== LAYOUT ===== */
+main{max-width:560px;margin:0 auto;padding:14px 14px 0}
+.tab{display:none}
+.tab.on{display:block;animation:tabIn .35s ease both}
+@keyframes tabIn{from{opacity:0;transform:translateY(14px)}}
+h2.sec{font-size:1.05rem;font-weight:900;margin:6px 2px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h2.sec small{font-weight:400;color:var(--mut);font-size:.72rem}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.tbtn{border:1.5px solid var(--line);background:#101838;color:#cdd5ff;border-radius:12px;padding:9px 12px;font-size:.78rem;font-weight:700;cursor:pointer;transition:transform .12s,border-color .2s}
+.tbtn:active{transform:scale(.95) translateY(2px)}
+.tbtn:hover{border-color:#6a5cff}
+.count-pill{background:var(--grad);color:#fff;border-radius:99px;padding:3px 10px;font-size:.72rem;font-weight:800;box-shadow:0 4px 14px #6a5cff55}
+
+/* ===== DAY BAR ===== */
+.daybar{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#6a5cff1f,#00d4ff14);border:1px solid #6a5cff44;border-radius:16px;padding:12px 14px;margin-bottom:14px;animation:cardIn .4s both}
+.daybar .dinfo{flex:1;min-width:0}
+.daybar .dnum{font-size:.85rem;font-weight:800}
+.daybar .dsub{font-size:.66rem;color:var(--mut);margin-top:2px}
+.daybar .dcount{text-align:center;background:#0b1126;border:1px solid var(--line);border-radius:12px;padding:6px 12px}
+.daybar .dcount b{display:block;font-size:1.4rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.daybar .dcount span{font-size:.6rem;color:var(--mut)}
+.btn-newday{border:none;background:linear-gradient(135deg,#7c3aed,#6a5cff);color:#fff;border-radius:12px;padding:11px 14px;font-weight:800;font-size:.78rem;cursor:pointer;box-shadow:0 5px 18px #6a5cff66;transition:transform .13s;white-space:nowrap}
+.btn-newday:active{transform:translateY(2px) scale(.96)}
+
+/* ===== ADDRESS CARDS ===== */
+.gcard{background:linear-gradient(180deg,#141d3d,#0e1531);border:1px solid var(--line);border-radius:var(--rad);margin-bottom:14px;overflow:hidden;animation:cardIn .5s cubic-bezier(.2,.9,.3,1.1) both;box-shadow:0 8px 24px #050a1a88}
+@keyframes cardIn{from{opacity:0;transform:perspective(800px) rotateX(-14deg) translateY(26px)}}
+.gcard.dragging{position:relative;z-index:30;box-shadow:0 18px 44px #000c;border-color:#6a5cff;transition:none!important;opacity:.95}
+.ghead{display:flex;align-items:center;gap:8px;padding:12px 12px 10px;background:linear-gradient(90deg,#6a5cff1f,transparent);border-bottom:1px solid var(--line)}
+.drag-handle{cursor:grab;touch-action:none;color:var(--mut);font-size:1.2rem;padding:2px 8px;letter-spacing:-2px}
+.drag-handle:active{cursor:grabbing}
+.gtitle{flex:1;font-size:.95rem;font-weight:800;min-width:0}
+.gtitle b{background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-size:1.15rem}
+.gcount{display:block;font-size:.68rem;color:var(--mut);font-weight:400;margin-top:2px}
+.gbtns{display:flex;gap:4px}
+.ibtn{border:1px solid var(--line);background:#0d1430;color:#9aa3cc;width:30px;height:30px;border-radius:9px;font-size:.7rem;cursor:pointer;transition:transform .12s}
+.ibtn:active{transform:scale(.88)}
+.ibtn.del{color:#ff8ba0;border-color:#f43f5e44}
+.gbod{padding:6px 10px 10px}
+.arow{display:flex;align-items:center;gap:10px;padding:11px 8px;border-bottom:1px dashed #20294d;animation:rowIn .4s ease both}
+.arow:last-child{border-bottom:none}
+@keyframes rowIn{from{opacity:0;transform:translateX(-14px)}}
+.ainfo{flex:1;min-width:0}
+.aname{display:block;font-size:.92rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aalley{font-size:.68rem;color:var(--mut)}
+.plaque{display:flex;align-items:center;gap:6px;font-size:.68rem;color:var(--mut);white-space:nowrap}
+.plaque b{font-size:1.55rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 10px #00d4ff44)}
+.btn.deliver{border:none;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border-radius:12px;padding:10px 14px;font-size:.8rem;font-weight:800;cursor:pointer;box-shadow:0 5px 16px #22c55e44;transition:transform .13s}
+.btn.deliver:active{transform:translateY(2px) scale(.95)}
+.arow.leaving{animation:leave .34s ease forwards}
+@keyframes leave{to{opacity:0;transform:translateY(26px) scale(.85)}}
+
+/* delivered zone */
+.ztitle{font-size:.8rem;color:#86efac;margin:20px 4px 10px;font-weight:800}
+.mini{display:flex;align-items:center;gap:10px;background:#22c55e14;border:1px solid #22c55e40;border-radius:14px;padding:10px 12px;margin-bottom:8px;animation:cardIn .4s both}
+.mini .mname{flex:1;font-size:.85rem;font-weight:700;color:#bbf7d0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini .mplq{font-size:.72rem;color:#86efac}
+.mini b{font-size:1.05rem}
+.mini button{border:1px solid #22c55e55;background:transparent;color:#86efac;border-radius:9px;padding:6px 9px;font-size:.72rem;cursor:pointer}
+
+/* ===== ADDRESS BOOK ===== */
+.brow{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#141d3d,#0e1531);border:1px solid var(--line);border-radius:16px;padding:12px;margin-bottom:10px;animation:cardIn .4s both}
+.binfo{flex:1;min-width:0}
+.binfo .bname{font-weight:800;font-size:.92rem}
+.binfo .bsub{font-size:.68rem;color:var(--mut);margin-top:3px;line-height:1.9}
+.bbtns{display:flex;gap:5px;flex-shrink:0}
+.bbtns .go{border:none;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border-radius:10px;padding:8px 10px;font-size:.7rem;font-weight:800;cursor:pointer}
+.bbtns .go:active{transform:scale(.94)}
+
+/* ===== NOTEPAD ===== */
+.note-wrap{background:linear-gradient(180deg,#141d3d,#0e1531);border:1px solid var(--line);border-radius:var(--rad);padding:14px;animation:cardIn .4s both}
+.note-wrap textarea{min-height:190px;line-height:2;font-size:15px;resize:vertical}
+.note-hint{font-size:.7rem;color:var(--mut);line-height:1.9;margin-top:8px}
+.note-hint b{color:#a5b0ff}
+.preview{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.chip{display:flex;gap:8px;align-items:center;background:#0b1126;border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:.78rem;animation:rowIn .3s both}
+.chip.dup{border-color:var(--bad);color:#fda4b4}
+.chip .tag{font-size:.62rem;background:#6a5cff33;color:#c3c9ff;border-radius:8px;padding:2px 7px}
+.chip .tag.d{background:#f43f5e33;color:#fda4b4}
+.big-cta{width:100%;border:none;border-radius:15px;padding:15px;font-size:.95rem;font-weight:900;color:#fff;background:var(--grad);cursor:pointer;margin-top:12px;box-shadow:0 8px 26px #6a5cff55;transition:transform .14s}
+.big-cta:active{transform:translateY(3px) scale(.98)}
+
+/* ===== LISTS ===== */
+.debt-banner{background:linear-gradient(135deg,#7c1d1d33,#f43f5e18);border:1px solid #f43f5e44;border-radius:var(--rad);padding:14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;animation:cardIn .4s both}
+.debt-banner .dl{font-size:.75rem;color:#fda4b4}
+.debt-banner .dv{font-size:1.3rem;font-weight:900;color:#fff}
+.dcard{background:linear-gradient(180deg,#1d1430,#140d24);border:1px solid #f43f5e33;border-radius:var(--rad);padding:13px;margin-bottom:12px;animation:cardIn .4s both}
+.dtop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.dtop b{font-size:.95rem}
+.damt{font-size:.85rem;font-weight:900;color:#fbbf24;white-space:nowrap}
+.dmeta{font-size:.7rem;color:var(--mut);margin-top:6px;line-height:1.9}
+.dbtns{display:flex;gap:8px;margin-top:10px}
+.dbtns .ok{flex:1;border:none;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;border-radius:12px;padding:10px;font-weight:800;font-size:.8rem;cursor:pointer}
+.dbtns .rm{border:1px solid #f43f5e44;background:transparent;color:#fda4b4;border-radius:12px;padding:10px 12px;cursor:pointer}
+.vcard{background:linear-gradient(180deg,#0f2418,#0b1a12);border:1px solid #22c55e33;border-radius:var(--rad);padding:13px;margin-bottom:12px;animation:cardIn .4s both}
+.vtop{display:flex;justify-content:space-between;align-items:center}
+.vtop b{font-size:.92rem;color:#bbf7d0}
+.vdate{font-size:.65rem;color:var(--mut)}
+.vmeta{font-size:.7rem;color:#86efac99;margin-top:5px}
+
+/* ===== REPORTS ===== */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.scard{background:linear-gradient(180deg,#141d3d,#0e1531);border:1px solid var(--line);border-radius:var(--rad);padding:15px;animation:cardIn .5s both}
+.scard .si{font-size:1.5rem}
+.scard .sv{font-size:1.5rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-top:4px}
+.scard .sl{font-size:.7rem;color:var(--mut);margin-top:2px}
+.scard.wide{grid-column:1/-1}
+.bar{height:10px;background:#0b1126;border-radius:99px;overflow:hidden;margin-top:10px}
+.bar i{display:block;height:100%;background:var(--grad);border-radius:99px;transition:width .8s cubic-bezier(.2,.9,.3,1)}
+.seg{display:flex;gap:6px;background:#0b1126;border:1px solid var(--line);border-radius:14px;padding:5px;margin-bottom:14px}
+.seg button{flex:1;border:none;background:transparent;color:var(--mut);border-radius:10px;padding:9px 4px;font-weight:800;font-size:.78rem;cursor:pointer;transition:all .25s}
+.seg button.on{background:var(--grad);color:#fff;box-shadow:0 4px 14px #6a5cff55}
+.hist{background:linear-gradient(180deg,#141d3d,#0e1531);border:1px solid var(--line);border-radius:var(--rad);padding:13px;margin-bottom:12px;animation:cardIn .4s both}
+.hist .htop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hist .hdate{font-weight:800;font-size:.88rem}
+.hist .hbadge{font-size:.65rem;background:#22c55e22;color:#86efac;border-radius:8px;padding:3px 8px;white-space:nowrap}
+.hist .hnums{display:flex;gap:8px;margin-top:10px}
+.hist .hcell{flex:1;background:#0b1126;border:1px solid var(--line);border-radius:10px;padding:8px;text-align:center}
+.hist .hcell b{display:block;font-size:1.05rem}
+.hist .hcell span{font-size:.6rem;color:var(--mut)}
+.hist .htoggle{margin-top:10px;width:100%;background:transparent;border:1px dashed var(--line);color:var(--mut);border-radius:10px;padding:7px;font-size:.7rem;cursor:pointer}
+.hist .hdetail{margin-top:10px;border-top:1px dashed #20294d;padding-top:8px;font-size:.72rem;color:#b9c2ff;line-height:2.1;display:none;max-height:220px;overflow-y:auto}
+.hist.open .hdetail{display:block;animation:tabIn .25s both}
+.bkrow{display:flex;gap:8px}
+.bkrow .tbtn{flex:1;text-align:center}
+
+/* ===== EMPTY / NAV / MODAL / TOAST ===== */
+.empty{text-align:center;padding:44px 16px;color:var(--mut)}
+.empty .e{font-size:2.6rem;display:block;margin-bottom:10px;animation:float1 4s ease-in-out infinite}
+.empty p{font-size:.8rem;line-height:2}
+.bottomnav{position:fixed;bottom:0;left:0;right:0;height:calc(var(--navh) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);display:flex;background:rgba(10,15,34,.86);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid #1d274e;z-index:50;max-width:560px;margin:0 auto}
+#navind{position:absolute;top:0;left:0;height:3px;background:var(--grad);border-radius:0 0 6px 6px;transition:transform .3s cubic-bezier(.2,.9,.3,1.2),width .3s;box-shadow:0 2px 12px #00d4ff}
+.navbtn{flex:1;border:none;background:transparent;color:var(--mut);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:.58rem;cursor:pointer;position:relative;transition:color .2s}
+.navbtn .ic{font-size:1.2rem;transition:transform .25s cubic-bezier(.2,.9,.3,1.4);display:inline-block}
+.navbtn.on{color:#fff}
+.navbtn.on .ic{transform:translateY(-3px) scale(1.2);filter:drop-shadow(0 5px 9px #6a5cffaa)}
+.navbtn .badge{position:absolute;top:7px;right:20%;min-width:16px;height:16px;background:var(--bad);color:#fff;border-radius:99px;font-size:.58rem;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 4px}
+.navbtn .badge.show{display:flex;animation:pulse 2s infinite}
+#modalBack{position:fixed;inset:0;background:rgba(4,7,18,.7);backdrop-filter:blur(6px);display:none;align-items:flex-end;justify-content:center;z-index:60}
+#modalBack.on{display:flex}
+.modal{width:100%;max-width:560px;max-height:86dvh;overflow-y:auto;background:linear-gradient(180deg,#161f42,#0d1330);border:1px solid #2a3566;border-bottom:none;border-radius:24px 24px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));animation:pop .3s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes pop{from{opacity:0;transform:translateY(70px) scale(.94)}}
+.mtitle{font-size:1.05rem;font-weight:900;margin-bottom:10px}
+.mpkg{background:#0b1126;border:1px solid var(--line);border-radius:14px;padding:12px;font-size:.88rem;margin-bottom:14px;line-height:2}
+.mpkg b{font-size:1.3rem;background:var(--grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.mq{font-size:.85rem;color:#c7cdf2;margin-bottom:16px;line-height:2}
+.mbtns{display:flex;flex-direction:column;gap:9px}
+.big{border:none;border-radius:14px;padding:14px;font-size:.9rem;font-weight:900;color:#fff;cursor:pointer;transition:transform .13s}
+.big:active{transform:scale(.97)}
+.big.ok{background:linear-gradient(135deg,#16a34a,#22c55e);box-shadow:0 6px 20px #22c55e44}
+.big.no{background:linear-gradient(135deg,#be123c,#f43f5e);box-shadow:0 6px 20px #f43f5e44}
+.ghost{border:1px solid var(--line);background:transparent;color:var(--mut);border-radius:14px;padding:12px;font-size:.82rem;cursor:pointer}
+.fld{display:block;font-size:.75rem;color:var(--mut);margin-bottom:11px}
+.fld i{color:var(--bad);font-style:normal}
+.fld input{margin-top:5px}
+.merr{color:#fda4b4;font-size:.75rem;min-height:18px;margin-bottom:6px}
+@media(min-width:640px){#modalBack{align-items:center}.modal{border-radius:24px;border-bottom:1px solid #2a3566}}
+#toast{position:fixed;bottom:calc(var(--navh) + env(safe-area-inset-bottom) + 18px);left:50%;transform:translate(-50%,80px);background:#141d3d;border:1px solid #2a3566;color:#fff;padding:12px 20px;border-radius:99px;font-size:.8rem;font-weight:700;z-index:70;opacity:0;transition:transform .3s cubic-bezier(.2,.9,.3,1.3),opacity .3s;box-shadow:0 10px 30px #000a;max-width:88vw;text-align:center}
+#toast.on{transform:translate(-50%,0);opacity:1}
+#toast.ok{border-color:#22c55e66}
+#toast.warn{border-color:#f59e0b66}
+#toast.bad{border-color:#f43f5e66}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="toprow">
+    <div class="brand">
+      <h1>🚚 تیپاکس پرو</h1>
+      <p>آدرس، تحویل، بدهکاری و گزارش — همه در یک جا</p>
+    </div>
+    <button class="btn-install" id="installBtn">⬇️ نصب اپ</button>
+  </div>
+  <div class="ticker"><div>✨ تیپاکس پرو — دفترچه یادداشت خط به خط • دفترچه آدرس دائمی با ویرایش • شمارش زنده تحویل روز • 🌙 روز جدید با آرشیو کامل • گزارش روزانه/هفتگی/ماهانه • پشتیبان‌گیری JSON —•— 📦 همه داده‌ها روی گوشی خودت سیو میشه!</div></div>
+</header>
+
+<main>
+  <!-- ===== ADDRESSES ===== -->
+  <section class="tab on" id="tab-addresses">
+    <div class="daybar">
+      <div class="dinfo"><div class="dnum">📅 <span id="todayDate">—</span></div><div class="dsub">روز کاری جاری — شمارش زنده تحویل</div></div>
+      <div class="dcount"><b id="dayCounter">۰</b><span>تحویل امروز</span></div>
+      <button class="btn-newday" id="newDayBtn">🌙 روز جدید</button>
+    </div>
+    <h2 class="sec">📍 آدرس‌های گیرنده <span class="count-pill" id="cntPending">۰</span></h2>
+    <div class="toolbar">
+      <input id="searchInp" placeholder="🔍 جستجوی نام، کوچه یا پلاک..." style="flex:1;min-width:150px">
+      <button class="tbtn" id="revBtn">🔃 معکوس</button>
+      <button class="tbtn" id="sortBtn">↕️ مرتب‌سازی</button>
+    </div>
+    <div id="addrList" style="margin-top:12px"></div>
+    <div id="delivZone"></div>
+  </section>
+
+  <!-- ===== NOTEPAD ===== -->
+  <section class="tab" id="tab-notepad">
+    <h2 class="sec">📝 دفترچه یادداشت <small>خط به خط بنویس، ثبت کن</small></h2>
+    <div class="note-wrap">
+      <textarea id="noteArea" placeholder="هر خط یک آدرس، مثلاً:&#10;سیدرضی ۴۰ پلاک ۵۰&#10;سیدرضی ۴۵ ۷۶&#10;مهدی احمدی کوچه ۱۲ پلاک ۵&#10;&#10;✍️ عدد اول = کوچه ، عدد دوم = پلاک"></textarea>
+      <div class="note-hint">
+        💡 می‌تونی آزادانه بنویسی: <b>«سیدرضی ۴۵ ۷۶»</b> یعنی کوچه ۴۵ پلاک ۷۶ — یا با کلمه <b>پلاک</b> و <b>کوچه</b> بنویسی. اعداد فارسی و انگلیسی هر دو قابل قبوله. آدرس‌های تکراری شناسایی می‌شن و بعد از ثبت، آدرس‌ها خودکار توی <b>دفترچه آدرس</b> هم سیو می‌شن و دفترچه خالی می‌شه.
+      </div>
+      <div class="preview" id="preview"></div>
+      <button class="big-cta" id="commitBtn">📥 ثبت آدرس‌ها</button>
+    </div>
+  </section>
+
+  <!-- ===== ADDRESS BOOK ===== -->
+  <section class="tab" id="tab-book">
+    <h2 class="sec">📖 دفترچه آدرس <small>ذخیره دائمی • ویرایش • حذف</small> <span class="count-pill" id="cntBook">۰</span></h2>
+    <div class="toolbar">
+      <input id="bookSearch" placeholder="🔍 جستجوی سریع در دفترچه..." style="flex:1;min-width:150px">
+      <button class="tbtn" id="bookAddBtn" style="background:var(--grad);color:#fff;border:none">➕ افزودن</button>
+    </div>
+    <div id="bookList"></div>
+  </section>
+
+  <!-- ===== DELIVERED ===== -->
+  <section class="tab" id="tab-delivered">
+    <h2 class="sec">✅ تحویل‌شده‌ها <span class="count-pill" id="cntDeliv">۰</span></h2>
+    <div class="toolbar"><button class="tbtn" id="clearDeliv" style="color:#ff8ba0;border-color:#f43f5e44">🧹 پاک کردن همه</button></div>
+    <div id="delivList"></div>
+  </section>
+
+  <!-- ===== DEBTORS ===== -->
+  <section class="tab" id="tab-debtors">
+    <h2 class="sec">💳 بدهکارها <span class="count-pill" id="cntDebt">۰</span></h2>
+    <div class="debt-banner"><div><div class="dl">تعداد بدهکارها (پرداخت‌نشده)</div><div class="dv" id="debtTotal">۰ بدهکار</div></div><div style="font-size:2rem">💰</div></div>
+    <div id="debtList"></div>
+  </section>
+
+  <!-- ===== REPORTS ===== -->
+  <section class="tab" id="tab-reports">
+    <h2 class="sec">📊 گزارش و آمار</h2>
+    <div class="seg" id="reportSeg">
+      <button class="on" data-range="day">روزانه</button>
+      <button data-range="week">هفتگی</button>
+      <button data-range="month">ماهانه</button>
+    </div>
+    <div id="reportCards" class="stats-grid"></div>
+    <h2 class="sec" style="margin-top:22px">🗂 تاریخچه روزها <span class="count-pill" id="cntHist">۰</span></h2>
+    <div id="histList"></div>
+    <h2 class="sec" style="margin-top:22px">💾 پشتیبان‌گیری</h2>
+    <div class="bkrow">
+      <button class="tbtn" id="exportBtn">⬇️ خروجی JSON</button>
+      <button class="tbtn" id="importBtn">⬆️ بازیابی از فایل</button>
+      <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+    </div>
+  </section>
+</main>
+
+<!-- ===== NAV ===== -->
+<nav class="bottomnav" id="bottomnav">
+  <div id="navind"></div>
+  <button class="navbtn on" data-tab="addresses"><span class="ic">📍</span>آدرس‌ها</button>
+  <button class="navbtn" data-tab="notepad"><span class="ic">📝</span>دفترچه</button>
+  <button class="navbtn" data-tab="book"><span class="ic">📖</span>آدرس‌نامه</button>
+  <button class="navbtn" data-tab="delivered"><span class="ic">✅</span>تحویل</button>
+  <button class="navbtn" data-tab="debtors"><span class="ic">💳</span>بدهکار<span class="badge" id="bDebt"></span></button>
+  <button class="navbtn" data-tab="reports"><span class="ic">📊</span>گزارش</button>
+</nav>
+
+<div id="modalBack"></div>
+<div id="toast"></div>
+<noscript>این برنامه به جاوااسکریپت نیاز دارد.</noscript>
+<script>
+/* ================= TIPAX PRO v4 — single-file app ================= */
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>document.querySelectorAll(s);
+const LS='tipaxPro_v4';
+let data={pending:[],debt:[],deliv:[],note:'',book:[],days:[]};
+try{const raw=localStorage.getItem(LS); if(raw)data=Object.assign(data,JSON.parse(raw));}catch(e){}
+data.book=data.book||[]; data.days=data.days||[];
+const save=()=>{try{localStorage.setItem(LS,JSON.stringify(data))}catch(e){}};
+const fa=n=>String(n).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+const jalali=d=>new Date(d).toLocaleDateString('fa-IR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+const jalaliShort=d=>new Date(d).toLocaleDateString('fa-IR');
+const dayKey=d=>{const x=new Date(d);return x.getFullYear()+'-'+(x.getMonth()+1)+'-'+x.getDate()};
+const todayKey=()=>dayKey(new Date());
+const sameDay=(a,b)=>dayKey(a)===dayKey(b);
+const uid=()=>'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+
+/* ---------- PARSER ---------- */
+function normalizeDigits(s){
+  return String(s)
+    .replace(/[۰-۹]/g,c=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(c))
+    .replace(/[٠-٩]/g,c=>'٠١٢٣٤٥٦٧٨٩'.indexOf(c));
+}
+function parseLine(raw){
+  let line=normalizeDigits(raw).replace(/[،,؛]/g,' ').replace(/\s+/g,' ').trim();
+  if(!line)return null;
+  const nums=line.match(/\d+/g)||[];
+  if(nums.length===0)return{name:line,alley:'',plaque:''};
+  if(nums.length===1){
+    const m=line.match(/^(.*?)(\d+)\s*$/);
+    return m?{name:m[1].trim().replace(/(کوچه|پلاک)$/,'').trim()||('کوچه '+nums[0]),alley:'',plaque:nums[0]}
+            :{name:line,alley:'',plaque:''};
+  }
+  let alley,plaque;
+  const pm=line.match(/پلاک\s*(\d+)/);
+  if(pm){
+    plaque=pm[1];
+    const before=line.slice(0,pm.index).replace(/پلاک\s*$/,'').trim();
+    const am=before.match(/(?:کوچه)?\s*(\d+)\s*$/);
+    alley=am?am[1]:(nums[0]!==plaque?nums[0]:'');
+  }else{
+    alley=nums[0]; plaque=nums[1];
+  }
+  let name=line;
+  name=name.replace(new RegExp('(کوچه\\s*)?'+alley+'(?=\\s|$)'),'');
+  name=name.replace(new RegExp('(پلاک\\s*)?'+plaque+'(?=\\s|$)'),'');
+  name=name.replace(/کوچه|پلاک/g,' ').replace(/\s+/g,' ').trim();
+  if(!name)name='گیرنده';
+  return{name,alley,plaque};
+}
+function parseNote(txt){return txt.split(/\r?\n/).map(parseLine).filter(Boolean)}
+
+/* ---------- ADDRESS LIST ---------- */
+function pendingHTML(){
+  const q=normalizeDigits(($('#searchInp')&&$('#searchInp').value)||'').trim().toLowerCase();
+  const list=data.pending.filter(a=>!q||(a.name+' '+a.alley+' '+a.plaque).toLowerCase().includes(q));
+  if(!list.length)return `<div class="empty"><span class="e">📭</span><p>${data.pending.length?'چیزی مطابق جستجو پیدا نشد':'هنوز آدرسی برای امروز ثبت نشده — از تب دفترچه یا آدرس‌نامه شروع کن ✍️'}</p></div>`;
+  return list.map((a,i)=>`
+    <div class="gcard" data-idx="${i}">
+      <div class="ghead">
+        <span class="drag-handle" data-drag="${i}">⠿</span>
+        <div class="gtitle"><b>${esc(a.name)}</b><span class="gcount">${a.alley?('کوچه '+fa(a.alley)+' • '):''}${fa(a.items.length)} نشانی در این کوچه</span></div>
+        <div class="gbtns">
+          <button class="ibtn" data-up="${i}">▲</button>
+          <button class="ibtn" data-down="${i}">▼</button>
+          <button class="ibtn del" data-del="${i}">🗑</button>
+        </div>
+      </div>
+      <div class="gbod">${a.items.map(it=>`
+        <div class="arow" data-item="${it.id}">
+          <div class="ainfo"><span class="aname">${esc(it.name)}</span>
+            <span class="aalley">${a.alley?('کوچه '+fa(a.alley)):'بدون کوچه'}</span></div>
+          <div class="plaque"><span>پلاک</span><b>${fa(it.plaque||'—')}</b></div>
+          <button class="btn deliver" data-deliver="${it.id}">تحویل</button>
+        </div>`).join('')}</div>
+    </div>`).join('');
+}
+function todayDeliv(){return data.deliv.filter(v=>sameDay(v.date,new Date()))}
+function delivMiniHTML(){
+  const t=todayDeliv();
+  if(!t.length)return '';
+  return `<div class="ztitle">✅ تحویل‌شده‌های امروز — اینجا سبز شدن</div>`+t.map(v=>`
+    <div class="mini"><div class="mname">${esc(v.name)}</div>
+      <div class="mplq">پلاک <b>${fa(v.plaque||'—')}</b>${v.alley?(' • کوچه '+fa(v.alley)):''}</div>
+      <button data-undo="${v.id}">برگردان</button></div>`).join('');
+}
+function renderPending(){ $('#addrList').innerHTML=pendingHTML(); $('#delivZone').innerHTML=delivMiniHTML(); renderDayBar(); updateCounts(); bindDrag(); }
+
+/* ---------- GROUPING ---------- */
+function regroup(){
+  const flat=[];
+  data.pending.forEach(g=>(g.items||[{id:g.id,name:g.name,plaque:g.plaque,ts:Date.now()}]).forEach(it=>flat.push(it)));
+  const map=new Map();
+  flat.forEach(it=>{
+    const g=parseLine(it.name+(it.alley?' '+it.alley:'')+' '+it.plaque);
+    const key=(g.name+'|'+g.alley);
+    if(!map.has(key))map.set(key,{id:uid(),name:g.name,alley:g.alley,items:[]});
+    map.get(key).items.push({id:it.id||uid(),name:g.name,plaque:g.plaque,ts:it.ts||Date.now()});
+  });
+  data.pending=[...map.values()]; save();
+}
+
+/* ---------- MODAL ---------- */
+function openModal(html){ $('#modalBack').innerHTML=`<div class="modal">${html}</div>`; $('#modalBack').classList.add('on'); }
+function closeModal(){ $('#modalBack').classList.remove('on'); $('#modalBack').innerHTML=''; }
+function findItem(id){ for(const g of data.pending){const it=g.items.find(x=>x.id===id); if(it)return{g,it};} return null; }
+
+/* ---------- DELIVERY FLOW ---------- */
+let curItem=null;
+function startDeliver(id){
+  const f=findItem(id); if(!f)return;
+  curItem={id,g:f.g,it:f.it};
+  openModal(`
+    <div class="mtitle">📦 تحویل مرسوله</div>
+    <div class="mpkg">گیرنده: <b>${esc(f.it.name)}</b><br>${f.g.alley?('کوچه '+fa(f.g.alley)+' • '):''}پلاک <b>${fa(f.it.plaque||'—')}</b></div>
+    <div class="mq">💰 آیا هزینه این مرسوله <u>تایید و پرداخت شده</u> است؟</div>
+    <div class="mbtns">
+      <button class="big ok" id="mPaid">✅ بله، پرداخت شده</button>
+      <button class="big no" id="mNotPaid">❌ خیر، پرداخت نشده</button>
+      <button class="ghost" id="mCancel">انصراف</button>
+    </div>`);
+  $('#mCancel').onclick=closeModal;
+  $('#mPaid').onclick=()=>doDeliver(true);
+  $('#mNotPaid').onclick=askUnpaid;
+}
+function askUnpaid(){
+  openModal(`
+    <div class="mtitle">💳 ثبت بدهکار</div>
+    <div class="mq">همه فیلدها <i style="color:#f43f5e;font-style:normal">*</i> <b>اجباری</b> هستند — بدون تکمیل، ثبت انجام نمی‌شه</div>
+    <label class="fld">نام و نام خانوادگی گیرنده <i>*</i><input id="dName" placeholder="مثلاً: سیدرضی موسوی"></label>
+    <label class="fld">شماره موبایل <i>*</i><input id="dPhone" inputmode="tel" placeholder="09xxxxxxxxx"></label>
+    <label class="fld">بارکد بسته <i>*</i><input id="dBarcode" inputmode="numeric" placeholder="کد بارکد مرسوله"></label>
+    <label class="fld">کد تحویل <i>*</i><input id="dCode" inputmode="numeric" placeholder="کد تحویل مرسوله"></label>
+    <div class="merr" id="dErr"></div>
+    <div class="mbtns">
+      <button class="big no" id="dSave">💳 ثبت در بدهکارها</button>
+      <button class="ghost" id="dBack">بازگشت</button>
+    </div>`);
+  $('#dBack').onclick=()=>startDeliver(curItem.id);
+  const req=[['dName','نام و نام خانوادگی گیرنده'],['dPhone','شماره موبایل'],['dBarcode','بارکد بسته'],['dCode','کد تحویل']];
+  req.forEach(([id])=>$('#'+id).addEventListener('input',e=>e.target.classList.remove('err')));
+  $('#dSave').onclick=()=>{
+    const vals={};
+    for(const [id,label] of req){
+      const el=$('#'+id), v=el.value.trim();
+      if(!v){ el.classList.add('err'); $('#dErr').textContent='⚠️ '+label+' الزامی است'; el.focus(); return; }
+      vals[id]=v;
+    }
+    doDeliver(false,{buyerName:vals.dName,phone:vals.dPhone,barcode:vals.dBarcode,code:vals.dCode});
+  };
+}
+function doDeliver(paid,extra){
+  const f=findItem(curItem.id); if(!f)return;
+  const g=f.g, it=f.it;
+  g.items=g.items.filter(x=>x.id!==it.id);
+  const rec={id:it.id,name:it.name,alley:g.alley,plaque:it.plaque,date:new Date().toISOString()};
+  if(paid){ data.deliv.unshift(rec); toast('✅ تحویل شد — به سبز‌ها اضافه شد','ok'); }
+  else{
+    data.debt.unshift(Object.assign(rec,extra)); toast('💳 در لیست بدهکارها ثبت شد','warn');
+  }
+  if(!g.items.length)data.pending=data.pending.filter(x=>x!==g);
+  save(); closeModal(); renderPending(); renderDebt(); renderDeliv(); updateCounts();
+}
+function undoDeliv(id){
+  const i=data.deliv.findIndex(v=>v.id===id); if(i<0)return;
+  const v=data.deliv.splice(i,1)[0];
+  addToPending(v); save(); renderPending(); renderDeliv(); renderDayBar(); updateCounts(); toast('↩️ به لیست آدرس‌ها برگشت','ok');
+}
+
+/* ---------- DEBTORS ---------- */
+function renderDebt(){
+  const l=$('#debtList');
+  if(!data.debt.length){ l.innerHTML=`<div class="empty"><span class="e">🎉</span><p>هیچ بدهکاری نیست — همه‌چیز پرداخت شده!</p></div>`; }
+  else l.innerHTML=data.debt.map(v=>`
+    <div class="dcard" data-id="${v.id}">
+      <div class="dtop"><b>👤 ${esc(v.buyerName||v.name)}</b><span class="damt">💳 پرداخت نشده</span></div>
+      <div class="dmeta">
+        گیرنده مرسوله: ${esc(v.name)}${v.alley?(' • کوچه '+fa(v.alley)):''} • پلاک ${fa(v.plaque||'—')}<br>
+        ${v.phone?('📱 موبایل: '+esc(normalizeDigits(v.phone))+'<br>'):''}
+        ${v.barcode?('🏷 بارکد بسته: '+esc(normalizeDigits(v.barcode))+'<br>'):''}
+        ${v.code?('🔑 کد تحویل: '+esc(normalizeDigits(v.code))+'<br>'):''}
+        📅 تاریخ: ${jalaliShort(v.date)}
+      </div>
+      <div class="dbtns"><button class="ok" data-pay="${v.id}">✅ پرداخت شد</button><button class="rm" data-debtdel="${v.id}">حذف</button></div>
+    </div>`).join('');
+  updateCounts();
+}
+function payDebt(id){
+  const i=data.debt.findIndex(v=>v.id===id); if(i<0)return;
+  const v=data.debt.splice(i,1)[0];
+  data.deliv.unshift({id:v.id,name:v.name,alley:v.alley,plaque:v.plaque,date:new Date().toISOString()});
+  save(); renderDebt(); renderDeliv(); renderDayBar(); updateCounts(); toast('✅ پرداخت شد — به تحویل‌شده‌ها منتقل شد','ok');
+}
+
+/* ---------- DELIVERED ---------- */
+function renderDeliv(){
+  const l=$('#delivList');
+  if(!data.deliv.length){ l.innerHTML=`<div class="empty"><span class="e">📦</span><p>هنوز مرسوله‌ای تحویل نشده</p></div>`; }
+  else l.innerHTML=data.deliv.map(v=>`
+    <div class="vcard"><div class="vtop"><b>✅ ${esc(v.name)}</b><span class="vdate">${jalaliShort(v.date)}</span></div>
+    <div class="vmeta">${v.alley?('کوچه '+fa(v.alley)+' • '):''}پلاک ${fa(v.plaque||'—')}</div></div>`).join('');
+}
+$('#clearDeliv').onclick=()=>{ if(!data.deliv.length)return toast('چیزی برای پاک کردن نیست','warn');
+  data.deliv=[]; save(); renderDeliv(); renderDayBar(); updateCounts(); toast('🧹 پاک شد','ok'); };
+
+/* ---------- ADD TO PENDING + AUTO-SAVE TO BOOK ---------- */
+function addToPending(rec){
+  const g=parseLine(rec.name+(rec.alley?' '+rec.alley:'')+' '+(rec.plaque||''));
+  const key=g.name+'|'+g.alley;
+  let grp=data.pending.find(x=>x.name+'|'+x.alley===key);
+  if(!grp){grp={id:uid(),name:g.name,alley:g.alley,items:[]};data.pending.push(grp);}
+  grp.items.push({id:rec.id||uid(),name:g.name,plaque:g.plaque,ts:Date.now()});
+}
+function autoSaveBook(p){
+  const exists=data.book.some(b=>b.name===p.name&&String(b.alley)===String(p.alley)&&String(b.plaque)===String(p.plaque));
+  if(!exists)data.book.unshift({id:uid(),name:p.name,alley:p.alley,plaque:p.plaque,ts:Date.now()});
+}
+
+/* ---------- NOTEPAD ---------- */
+$('#noteArea').value=data.note||'';
+$('#noteArea').addEventListener('input',()=>{data.note=$('#noteArea').value;save();previewNote();});
+function previewNote(){
+  const lines=parseNote($('#noteArea').value);
+  const seen=new Set();
+  $('#preview').innerHTML=lines.slice(0,30).map((p,i)=>{
+    const dup=seen.has(p.name+'|'+p.alley+'|'+p.plaque); seen.add(p.name+'|'+p.alley+'|'+p.plaque);
+    return `<div class="chip ${dup?'dup':''}"><span class="tag ${dup?'d':''}">${dup?'تکراری':'خط '+fa(i+1)}</span>
+      <span><b>${esc(p.name)}</b>${p.alley?(' — کوچه '+fa(p.alley)):''} — پلاک <b style="font-size:1.05rem">${fa(p.plaque||'—')}</b></span></div>`;
+  }).join('');
+}
+previewNote();
+$('#commitBtn').onclick=()=>{
+  const lines=parseNote($('#noteArea').value);
+  if(!lines.length)return toast('دفترچه خالیه — اول آدرس بنویس ✍️','warn');
+  let added=0;
+  lines.forEach((p,i)=>{
+    const exists=data.pending.some(g=>g.name===p.name&&String(g.alley)===String(p.alley)&&g.items.some(it=>String(it.plaque)===String(p.plaque)));
+    if(!exists){ addToPending({name:p.name+(p.alley?' '+p.alley:'')+' '+(p.plaque||''),alley:p.alley,plaque:p.plaque}); added++; }
+    autoSaveBook(p);
+  });
+  save();
+  $('#noteArea').value=''; data.note=''; save(); previewNote();   // form clears after save
+  renderPending(); renderBook();
+  toast(`📥 ${fa(added)} آدرس جدید ثبت شد${added<lines.length?' • تکراری‌ها رد شدن':''} • در دفترچه آدرس هم سیو شد`,'ok');
+  switchTab('addresses');
+};
+
+/* ---------- ADDRESS BOOK ---------- */
+function bookHTML(){
+  const q=normalizeDigits($('#bookSearch').value).trim().toLowerCase();
+  const list=data.book.filter(b=>!q||(b.name+' '+b.alley+' '+b.plaque).toLowerCase().includes(q));
+  if(!list.length)return `<div class="empty"><span class="e">📖</span><p>${data.book.length?'چیزی مطابق جستجو پیدا نشد':'دفترچه آدرس خالیه — با ثبت در دفترچه یادداشت یا دکمه «افزودن» پرش کن'}</p></div>`;
+  return list.map(b=>`
+    <div class="brow" data-bid="${b.id}">
+      <div class="binfo">
+        <div class="bname">👤 ${esc(b.name)}</div>
+        <div class="bsub">${b.alley?('کوچه '+fa(b.alley)+' • '):''}پلاک <b style="font-size:1.1rem">${fa(b.plaque||'—')}</b> • ثبت: ${jalaliShort(b.ts)}</div>
+      </div>
+      <div class="bbtns">
+        <button class="go" data-today="${b.id}">📍 به امروز</button>
+        <button class="ibtn" data-bedit="${b.id}">✏️</button>
+        <button class="ibtn del" data-bdel="${b.id}">🗑</button>
+      </div>
+    </div>`).join('');
+}
+function renderBook(){ $('#bookList').innerHTML=bookHTML(); $('#cntBook').textContent=fa(data.book.length); }
+$('#bookSearch').addEventListener('input',renderBook);
+$('#bookAddBtn').onclick=()=>editBook(null);
+function editBook(id){
+  const b=id?data.book.find(x=>x.id===id):null;
+  openModal(`
+    <div class="mtitle">${b?'✏️ ویرایش آدرس':'➕ افزودن آدرس'}</div>
+    <label class="fld">نام گیرنده <i>*</i><input id="ebName" value="${b?esc(b.name):''}" placeholder="مثلاً: سیدرضی"></label>
+    <label class="fld">کوچه<input id="ebAlley" inputmode="numeric" value="${b?esc(b.alley||''):''}" placeholder="مثلاً: ۴۵"></label>
+    <label class="fld">پلاک<input id="ebPlaque" inputmode="numeric" value="${b?esc(b.plaque||''):''}" placeholder="مثلاً: ۷۶"></label>
+    <div class="merr" id="ebErr"></div>
+    <div class="mbtns">
+      <button class="big ok" id="ebSave">💾 ذخیره</button>
+      ${b?'<button class="ghost" id="ebCancel">انصراف</button>':''}
+    </div>`);
+  if(b)$('#ebCancel').onclick=closeModal;
+  $('#ebSave').onclick=()=>{
+    const name=$('#ebName').value.trim();
+    if(!name){$('#ebName').classList.add('err');$('#ebErr').textContent='⚠️ نام الزامی است';return;}
+    const alley=normalizeDigits($('#ebAlley').value.trim()), plaque=normalizeDigits($('#ebPlaque').value.trim());
+    if(b){Object.assign(b,{name,alley,plaque});toast('💾 ویرایش شد','ok');}
+    else{data.book.unshift({id:uid(),name,alley,plaque,ts:Date.now()});toast('➕ به دفترچه آدرس اضافه شد','ok');}
+    save(); closeModal(); renderBook();
+  };
+}
+function deleteBookConfirm(id){
+  const b=data.book.find(x=>x.id===id); if(!b)return;
+  openModal(`
+    <div class="mtitle">🗑 حذف از دفترچه آدرس</div>
+    <div class="mq">«<b>${esc(b.name)}</b>» ${b.alley?('کوچه '+fa(b.alley)+' • '):''}پلاک ${fa(b.plaque||'—')} حذف شود؟<br><small style="color:var(--mut)">این عمل قابل بازگشت نیست</small></div>
+    <div class="mbtns">
+      <button class="big no" id="bdYes">🗑 بله، حذف کن</button>
+      <button class="ghost" id="bdNo">انصراف</button>
+    </div>`);
+  $('#bdNo').onclick=closeModal;
+  $('#bdYes').onclick=()=>{
+    data.book=data.book.filter(x=>x.id!==id); save(); closeModal(); renderBook(); toast('🗑 حذف شد','ok');
+  };
+}
+function sendToToday(id){
+  const b=data.book.find(x=>x.id===id); if(!b)return;
+  const exists=data.pending.some(g=>g.name===b.name&&String(g.alley)===String(b.alley)&&g.items.some(it=>String(it.plaque)===String(b.plaque)));
+  if(exists)return toast('⚠️ این آدرس از قبل در لیست امروز هست','warn');
+  addToPending({name:b.name+(b.alley?' '+b.alley:'')+' '+(b.plaque||''),alley:b.alley,plaque:b.plaque});
+  save(); renderPending(); switchTab('addresses'); toast('📍 به لیست آدرس‌های امروز اضافه شد','ok');
+}
+$('#bookList').addEventListener('click',e=>{
+  const t=e.target;
+  if(t.dataset.bedit)editBook(t.dataset.bedit);
+  else if(t.dataset.bdel)deleteBookConfirm(t.dataset.bdel);
+  else if(t.dataset.today)sendToToday(t.dataset.today);
+});
+
+/* ---------- NEW DAY / ARCHIVE ---------- */
+function dayStats(dk){
+  const del=data.deliv.filter(v=>dayKey(v.date)===dk);
+  const deb=data.debt.filter(v=>dayKey(v.date)===dk);
+  const reg=data.pending.reduce((s,g)=>s+g.items.filter(it=>dayKey(it.ts||0)===dk).length,0);
+  return{delivered:del.length,debts:deb.length,registered:reg,deliv:del,debt:deb};
+}
+function renderDayBar(){
+  $('#todayDate').textContent=jalali(new Date());
+  $('#dayCounter').textContent=fa(todayDeliv().length);
+}
+$('#newDayBtn').onclick=()=>{
+  const s=dayStats(todayKey());
+  openModal(`
+    <div class="mtitle">🌙 شروع روز جدید</div>
+    <div class="mpkg">روز امروز: <b style="font-size:1rem">${jalali(new Date())}</b><br>
+    ✅ تحویل‌شده: <b>${fa(s.delivered)}</b> • 💳 بدهکار: <b>${fa(s.debts)}</b> • 📥 ثبت‌شده: <b>${fa(s.registered)}</b></div>
+    <div class="mq">روز فعلی با تمام جزئیات (مرسولات، تحویل‌ها، بدهکارها و شمارنده‌ها) در تاریخچه آرشیو می‌شه و شمارنده‌های امروز صفر می‌شن. آدرس‌های تحویل‌نشده در لیست می‌مونن.</div>
+    <div class="mbtns">
+      <button class="big ok" id="ndYes">🌙 بله، روز جدید شروع کن</button>
+      <button class="ghost" id="ndNo">انصراف</button>
+    </div>`);
+  $('#ndNo').onclick=closeModal;
+  $('#ndYes').onclick=()=>{
+    const dk=todayKey(), s=dayStats(dk);
+    if(s.delivered||s.debts||s.registered){
+      data.days.unshift({id:uid(),date:new Date().toISOString(),dateKey:dk,jdate:jalaliShort(new Date()),
+        delivered:s.delivered,debts:s.debts,registered:s.registered,
+        deliv:s.deliv,debt:s.debt});
+    }
+    data.deliv=data.deliv.filter(v=>!sameDay(v.date,new Date()));
+    data.debt=data.debt.filter(v=>!sameDay(v.date,new Date()));
+    save(); closeModal(); renderPending(); renderDebt(); renderDeliv(); renderReports(); updateCounts();
+    switchTab('addresses'); toast('🌙 روز جدید شروع شد — روز قبل در تاریخچه سیو شد','ok');
+  };
+};
+
+/* ---------- REPORTS (day / week / month) ---------- */
+let reportRange='day';
+function rangeDelivered(days){
+  const cut=Date.now()-days*864e5;
+  let c=data.deliv.filter(v=>new Date(v.date).getTime()>=cut).length;
+  data.days.forEach(d=>{ if(new Date(d.date).getTime()>=cut)c+=(d.deliv||[]).length; });
+  return c;
+}
+function rangeDebts(days){
+  const cut=Date.now()-days*864e5;
+  let c=data.debt.filter(v=>new Date(v.date).getTime()>=cut).length;
+  data.days.forEach(d=>{ if(new Date(d.date).getTime()>=cut)c+=(d.debt||[]).length; });
+  return c;
+}
+function renderReports(){
+  const days=reportRange==='day'?1:reportRange==='week'?7:30;
+  const label=reportRange==='day'?'امروز':reportRange==='week'?'۷ روز اخیر':'۳۰ روز اخیر';
+  const dl=rangeDelivered(days), db=rangeDebts(days);
+  const total=dl+db, pct=total?Math.round(dl/total*100):0;
+  const openItems=data.pending.reduce((s,g)=>s+g.items.length,0);
+  $('#reportCards').innerHTML=`
+    <div class="scard"><div class="si">✅</div><div class="sv">${fa(dl)}</div><div class="sl">تحویل موفق (${label})</div>
+      <div class="bar"><i style="width:${pct}%;background:linear-gradient(135deg,#16a34a,#22c55e)"></i></div></div>
+    <div class="scard"><div class="si">💳</div><div class="sv">${fa(db)}</div><div class="sl">پرداخت‌نشده (${label})</div>
+      <div class="bar"><i style="width:${total?Math.round(db/total*100):0}%;background:linear-gradient(135deg,#f43f5e,#f59e0b)"></i></div></div>
+    <div class="scard"><div class="si">📈</div><div class="sv">٪${fa(pct)}</div><div class="sl">نرخ موفقیت (${label})</div>
+      <div class="bar"><i style="width:${pct}%"></i></div></div>
+    <div class="scard"><div class="si">📍</div><div class="sv">${fa(openItems)}</div><div class="sl">در انتظار تحویل (همین حالا)</div>
+      <div class="bar"><i style="width:${total?Math.round(openItems/(openItems+total)*100):0}%;background:linear-gradient(135deg,#7c3aed,#6a5cff)"></i></div></div>
+    <div class="scard wide"><div class="si">🗂</div><div class="sv">${fa(data.days.length)}</div><div class="sl">روز آرشیو‌شده — کل تحویل‌ها: ${fa(data.deliv.length+data.days.reduce((s,d)=>s+(d.deliv||[]).length,0))}</div></div>`;
+  // history
+  const l=$('#histList'); $('#cntHist').textContent=fa(data.days.length);
+  if(!data.days.length){ l.innerHTML=`<div class="empty"><span class="e">🌙</span><p>هنوز روزی آرشیو نشده — آخر روز دکمه «روز جدید» رو بزن</p></div>`; }
+  else l.innerHTML=data.days.map(d=>`
+    <div class="hist" data-hid="${d.id}">
+      <div class="htop"><span class="hdate">📅 ${esc(d.jdate)}</span><span class="hbadge">آرشیو کامل</span></div>
+      <div class="hnums">
+        <div class="hcell"><b>${fa(d.delivered)}</b><span>تحویل</span></div>
+        <div class="hcell"><b>${fa(d.debts)}</b><span>بدهکار</span></div>
+        <div class="hcell"><b>${fa(d.registered)}</b><span>ثبت‌شده</span></div>
+        <div class="hcell"><b>${fa(d.delivered+d.debts)}</b><span>جمع مرسولات</span></div>
+      </div>
+      <button class="htoggle" data-htoggle="${d.id}">▼ مشاهده جزئیات کامل</button>
+      <div class="hdetail">
+        ${d.deliv&&d.deliv.length?`<b style="color:#86efac">✅ تحویل‌شده‌ها:</b><br>`+d.deliv.map(v=>`• ${esc(v.name)} — پلاک ${fa(v.plaque||'—')}${v.alley?(' — کوچه '+fa(v.alley)):''}`).join('<br>')+'<br>':'<span style="color:var(--mut)">تحویلی ثبت نشده</span><br>'}
+        ${d.debt&&d.debt.length?`<b style="color:#fda4b4">💳 بدهکارها:</b><br>`+d.debt.map(v=>`• ${esc(v.buyerName||v.name)} — پلاک ${fa(v.plaque||'—')}${v.phone?(' — 📱 '+esc(normalizeDigits(v.phone))):''}`).join('<br>'):'<span style="color:var(--mut)">بدهکاری ثبت نشده</span>'}
+      </div>
+    </div>`).join('');
+}
+$$('#reportSeg button').forEach(b=>b.onclick=()=>{
+  $$('#reportSeg button').forEach(x=>x.classList.remove('on'));
+  b.classList.add('on'); reportRange=b.dataset.range; renderReports();
+});
+$('#histList').addEventListener('click',e=>{
+  if(e.target.dataset.htoggle){
+    const card=e.target.closest('.hist'); card.classList.toggle('open');
+    e.target.textContent=card.classList.contains('open')?'▲ بستن جزئیات':'▼ مشاهده جزئیات کامل';
+  }
+});
+
+/* ---------- BACKUP ---------- */
+$('#exportBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='tipax-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(a.href); toast('⬇️ فایل پشتیبان دانلود شد','ok');
+};
+$('#importBtn').onclick=()=>$('#importFile').click();
+$('#importFile').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(!d||typeof d!=='object'||!('pending' in d))throw 0;
+      data=Object.assign({pending:[],debt:[],deliv:[],note:'',book:[],days:[]},d);
+      save(); renderAll(); toast('⬆️ بازیابی کامل شد','ok');
+    }catch(err){toast('⚠️ فایل نامعتبر است','bad');}
+  };
+  r.readAsText(f); e.target.value='';
+});
+
+/* ---------- REORDER ---------- */
+let dragIdx=null;
+function bindDrag(){
+  $$('[data-drag]').forEach(h=>{
+    h.addEventListener('pointerdown',e=>{
+      dragIdx=+h.dataset.drag;
+      const card=h.closest('.gcard');
+      const startY=e.clientY; const startX=e.clientX; let curIdx=dragIdx; let started=false;
+      try{h.setPointerCapture(e.pointerId)}catch(err){}
+      const cards=()=>[...$('#addrList').querySelectorAll('.gcard')];
+      const move=ev=>{
+        const dy=ev.clientY-startY;
+        if(!started){ if(Math.abs(dy)<7&&Math.abs(ev.clientX-startX)<7)return; started=true; card.classList.add('dragging'); }
+        card.style.transform=`translateY(${dy}px) scale(1.02)`;
+        const others=cards().filter(c=>c!==card);
+        for(const o of others){
+          const r=o.getBoundingClientRect(), cr=card.getBoundingClientRect();
+          const oIdx=+o.dataset.idx;
+          if(cr.top+cr.height/2<r.top+r.height/2 && oIdx>curIdx){ o.style.transform='translateY(4px)'; }
+          else if(cr.top+cr.height/2>r.top+r.height/2 && oIdx<curIdx){ o.style.transform='translateY(-4px)'; }
+          else o.style.transform='';
+        }
+      };
+      const up=ev=>{
+        h.removeEventListener('pointermove',move); h.removeEventListener('pointerup',up); h.removeEventListener('pointercancel',up);
+        card.classList.remove('dragging'); card.style.transform='';
+        cards().forEach(o=>o.style.transform='');
+        const dy=ev.clientY-startY;
+        if(Math.abs(dy)>60){
+          const step=Math.max(1,Math.round(Math.abs(dy)/180));
+          const ni=Math.min(data.pending.length-1,Math.max(0,curIdx+(dy>0?step:-step)));
+          const [m]=data.pending.splice(curIdx,1); data.pending.splice(ni,0,m); save();
+        }
+        renderPending();
+      };
+      h.addEventListener('pointermove',move); h.addEventListener('pointerup',up); h.addEventListener('pointercancel',up);
+    });
+  });
+}
+$('#addrList').addEventListener('click',e=>{
+  const t=e.target;
+  if(t.dataset.up!==undefined){const i=+t.dataset.up; if(i>0){[data.pending[i-1],data.pending[i]]=[data.pending[i],data.pending[i-1]];save();renderPending();}}
+  else if(t.dataset.down!==undefined){const i=+t.dataset.down; if(i<data.pending.length-1){[data.pending[i+1],data.pending[i]]=[data.pending[i],data.pending[i+1]];save();renderPending();}}
+  else if(t.dataset.del!==undefined){const i=+t.dataset.del; data.pending.splice(i,1); save(); renderPending(); toast('🗑 حذف شد','ok');}
+  else if(t.dataset.deliver!==undefined){ startDeliver(t.dataset.deliver); }
+  else if(t.dataset.undo!==undefined){ undoDeliv(t.dataset.undo); }
+});
+$('#debtList').addEventListener('click',e=>{
+  const t=e.target;
+  if(t.dataset.pay)payDebt(t.dataset.pay);
+  else if(t.dataset.debtdel){data.debt=data.debt.filter(v=>v.id!==t.dataset.debtdel);save();renderDebt();updateCounts();toast('🗑 حذف شد','ok');}
+});
+$('#revBtn').onclick=()=>{data.pending.reverse();save();renderPending();toast('🔃 ترتیب معکوس شد','ok');};
+$('#sortBtn').onclick=()=>{
+  data.pending.sort((a,b)=>(a.alley||'999999')-(b.alley||'999999')||a.name.localeCompare(b.name,'fa'));
+  save();renderPending();toast('↕️ بر اساس کوچه مرتب شد','ok');
+};
+$('#searchInp').addEventListener('input',renderPending);
+$('#modalBack').addEventListener('click',e=>{if(e.target.id==='modalBack')closeModal();});
+
+/* ---------- TOAST ---------- */
+let toastTimer;
+function toast(msg,kind){
+  const t=$('#toast'); t.textContent=msg; t.className='on '+(kind||'');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('on'),2600);
+}
+
+/* ---------- TABS + NAV ---------- */
+const tabs=['addresses','notepad','book','delivered','debtors','reports'];
+function switchTab(name){
+  tabs.forEach(t=>$('#tab-'+t).classList.toggle('on',t===name));
+  $$('.navbtn').forEach(b=>b.classList.toggle('on',b.dataset.tab===name));
+  const i=tabs.indexOf(name), b=$$('.navbtn')[i];
+  if(b){const ind=$('#navind');ind.style.width=b.offsetWidth+'px';ind.style.transform=`translateX(${b.offsetLeft}px)`;}
+  if(name==='reports')renderReports();
+  if(name==='book')renderBook();
+}
+$$('.navbtn').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+
+/* ---------- COUNTS ---------- */
+function updateCounts(){
+  $('#cntPending').textContent=fa(data.pending.reduce((s,g)=>s+g.items.length,0));
+  $('#cntDebt').textContent=fa(data.debt.length);
+  $('#cntDeliv').textContent=fa(data.deliv.length);
+  const ba=$('#bDebt'); ba.textContent=fa(data.debt.length); ba.classList.toggle('show',data.debt.length>0);
+  const dt=$('#debtTotal'); if(dt)dt.textContent=fa(data.debt.length)+' بدهکار';
+}
+function renderAll(){renderPending();renderBook();renderDebt();renderDeliv();renderReports();renderDayBar();updateCounts();}
+
+/* ---------- PWA ---------- */
+function iconDataURL(size){
+  const c=document.createElement('canvas');c.width=c.height=size;const x=c.getContext('2d');
+  const g=x.createLinearGradient(0,0,size,size);g.addColorStop(0,'#6a5cff');g.addColorStop(1,'#00d4ff');
+  x.fillStyle=g;x.beginPath();x.roundRect(0,0,size,size,size*.22);x.fill();
+  x.font='900 '+(size*.5)+'px Vazirmatn, Tahoma, sans-serif';x.textAlign='center';x.textBaseline='middle';
+  x.fillStyle='#fff';x.fillText('🚚',size/2,size*.54);
+  return c.toDataURL('image/png');
+}
+const manifest={name:'تیپاکس پرو',short_name:'تیپاکس',start_url:'.',display:'standalone',
+  background_color:'#070b16',theme_color:'#0b1020',dir:'rtl',lang:'fa',
+  icons:[{src:iconDataURL(512),sizes:'512x512',type:'image/png',purpose:'any maskable'}]};
+document.getElementById('manifestLink').href=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'}));
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredPrompt=e;
+  const b=$('#installBtn'); b.classList.add('ready'); b.textContent='📲 نصب اپ';
+});
+$('#installBtn').onclick=async()=>{
+  if(deferredPrompt){
+    deferredPrompt.prompt();
+    const r=await deferredPrompt.userChoice;
+    if(r.outcome==='accepted')toast('🎉 اپ نصب شد!','ok');
+    deferredPrompt=null; return;
+  }
+  const iOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  openModal(iOS?
+    `<div class="mtitle">📲 نصب روی آیفون / آیپد</div>
+     <div class="mq">در سافاری: دکمه <b>Share ⬆️</b> ← <b>Add to Home Screen</b> ← <b>Add</b> ✅</div>
+     <div class="mbtns"><button class="ghost" id="mCancel">فهمیدم</button></div>`:
+    `<div class="mtitle">📲 نصب اپ</div>
+     <div class="mq">در کروم/ادج: منوی <b>⋮</b> ← <b>Install app / Add to Home screen</b><br><br>
+     ⚠️ نصب خودکار (PWA) فقط وقتی فعال میشه که این فایل روی یک آدرس HTTPS میزبانی بشه — خود برنامه کاملاً آفلاین کار می‌کنه.</div>
+     <div class="mbtns"><button class="ghost" id="mCancel">فهمیدم</button></div>`);
+  const c=$('#mCancel'); if(c)c.onclick=closeModal;
+};
+
+/* ---------- INIT ---------- */
+if(data.pending.length&&data.pending[0]&&!data.pending[0].items)regroup();
+renderAll(); switchTab('addresses');
+window.addEventListener('resize',()=>switchTab(tabs.find(t=>$('#tab-'+t).classList.contains('on'))||'addresses'));
+window.parseLine=parseLine; window.parseNote=parseNote; window._data=data; // test hooks
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
